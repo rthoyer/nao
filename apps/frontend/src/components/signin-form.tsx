@@ -94,8 +94,13 @@ export function SignInForm<T extends string>({
 							</div>
 
 							<div className='flex justify-center items-center gap-4 p-4'>
-								<Button type='button' variant='outline' onClick={handleGoogleSignIn}>
-									<img src='/google-icon.svg' alt='Google' className='w-5 h-5' />
+								<Button
+									type='button'
+									variant='outline'
+									onClick={handleGoogleSignIn}
+									className='w-[50%]'
+								>
+									<img src='/google-icon.svg' alt='Google' className='w-5 h-5' /> Google
 								</Button>
 							</div>
 						</div>
