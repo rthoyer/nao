@@ -41,7 +41,7 @@ export function SignInForm<T extends string>({
 	footerLinkTo,
 	error,
 }: SignFormProps<T>) {
-	const isGoogleSetup = useQuery(trpc.hasGoogleSetup.queryOptions());
+	const isGoogleSetup = useQuery(trpc.google.isSetup.queryOptions());
 	return (
 		<div className='container mx-auto w-full max-w-2xl p-12 my-auto'>
 			<Card className='w-full rounded-4xl px-6 py-10 pt-14'>
