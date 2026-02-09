@@ -41,7 +41,9 @@ def sync_snowflake(
         except Exception:
             # Fallback: try using raw SQL if available
             try:
-                schemas_query = f"SELECT DISTINCT SCHEMA_NAME FROM {db_name}.INFORMATION_SCHEMA.SCHEMATA ORDER BY SCHEMA_NAME"
+                schemas_query = (
+                    f"SELECT DISTINCT SCHEMA_NAME FROM {db_name}.INFORMATION_SCHEMA.SCHEMATA ORDER BY SCHEMA_NAME"
+                )
                 if hasattr(conn, "sql"):
                     schemas_result = conn.sql(schemas_query).execute()
                     schemas = [row["SCHEMA_NAME"] for row in schemas_result.to_dict("records")]
