@@ -6,7 +6,8 @@
 		".": "./src/index.ts",
 		"./posthog": "./src/posthog.ts",
 		"./utils": "./src/utils.ts",
-		"./tools": "./src/tools/index.ts"
+		"./tools": "./src/tools/index.ts",
+		"./types/chat": "./src/types/chat.ts"
 	},
 	"scripts": {
 		"test": "vitest run",

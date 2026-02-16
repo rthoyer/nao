@@ -24,8 +24,17 @@ import { capitalize } from '@/lib/utils';
 export function ChatInput() {
 	const [hasInput, setHasInput] = useState(false);
 	const promptRef = useRef<PromptHandle>(null);
-	const { sendMessage, isRunning, stopAgent, isReadyForNewMessages, selectedModel, setSelectedModel, setMentions } =
-		useAgentContext();
+	const {
+		sendMessage,
+		isRunning,
+		stopAgent,
+		isReadyForNewMessages,
+		selectedModel,
+		setSelectedModel,
+		selectedMode,
+		setSelectedMode,
+		setMentions,
+	} = useAgentContext();
 	const chatId = useParams({ strict: false, select: (p) => p.chatId });
 	const availableModels = useQuery(trpc.project.getAvailableModels.queryOptions());
 	const knownModels = useQuery(trpc.project.getKnownModels.queryOptions());
@@ -110,7 +119,11 @@ export function ChatInput() {
 				<InputGroup htmlFor='chat-input'>
 					<Prompt
 						ref={promptRef}
-						placeholder='Ask anything about your data...'
+						placeholder={
+							selectedMode === 'deep-search'
+								? 'Describe your analysis goal and I will create a plan...'
+								: 'Ask anything about your data...'
+						}
 						mentionConfigs={[
 							{
 								trigger: '/',
@@ -131,6 +144,40 @@ export function ChatInput() {
 						theme={theme}
 					/>
 					<InputGroupAddon align='block-end'>
+						{/* Mode selector */}
+						<DropdownMenu>
+							<DropdownMenuTrigger asChild>
+								<button
+									type='button'
+									className='flex items-center gap-1.5 text-sm font-normal text-foreground outline-none hover:bg-accent cursor-pointer px-2 py-1 rounded-md bg-muted transition-colors'
+								>
+									<span
+										className={`size-2 rounded-full ${selectedMode === 'deep-search' ? 'bg-yellow-500' : 'bg-green-500'}`}
+									/>
+									{selectedMode === 'deep-search' ? 'Deep Search' : 'Chat'}
+									<ChevronDown className='size-3' />
+								</button>
+							</DropdownMenuTrigger>
+							<DropdownMenuContent align='start' side='top'>
+								<DropdownMenuGroup>
+									<DropdownMenuItem
+										onSelect={() => setSelectedMode('chat')}
+										className={selectedMode === 'chat' ? 'bg-accent' : ''}
+									>
+										<span className='size-2 rounded-full bg-green-500 mr-2' />
+										Chat
+									</DropdownMenuItem>
+									<DropdownMenuItem
+										onSelect={() => setSelectedMode('deep-search')}
+										className={selectedMode === 'deep-search' ? 'bg-accent' : ''}
+									>
+										<span className='size-2 rounded-full bg-yellow-500 mr-2' />
+										Deep Search
+									</DropdownMenuItem>
+								</DropdownMenuGroup>
+							</DropdownMenuContent>
+						</DropdownMenu>
+
 						{/* Model selector */}
 						{models.length > 0 && (
 							<DropdownMenu>

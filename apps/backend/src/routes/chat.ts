@@ -26,6 +26,8 @@ const mentionSchema = z.object({
 	label: z.string(),
 });
 
+const modeSchema = z.enum(['chat', 'deep-search']).optional();
+
 export const chatRoutes = async (app: App) => {
 	app.addHook('preHandler', authMiddleware);
 
@@ -38,6 +40,7 @@ export const chatRoutes = async (app: App) => {
 					chatId: z.string().optional(),
 					model: modelSelectionSchema,
 					mentions: z.array(mentionSchema).optional(),
+					mode: modeSchema,
 				}),
 			},
 		},
@@ -49,6 +52,7 @@ export const chatRoutes = async (app: App) => {
 			let chatId = request.body.chatId;
 			const modelSelection = request.body.model;
 			const mentions = request.body.mentions;
+			const mode = request.body.mode ?? 'chat';
 			const isNewChat = !chatId;
 
 			if (!projectId) {
@@ -80,7 +84,12 @@ export const chatRoutes = async (app: App) => {
 			await mcpService.initializeMcpState(projectId);
 			await skillService.initializeSkills(projectId);
 
-			const agent = await agentService.create({ ...chat, userId, projectId }, abortController, modelSelection);
+			const agent = await agentService.create(
+				{ ...chat, userId, projectId },
+				abortController,
+				modelSelection,
+				mode,
+			);
 
 			posthog.capture(userId, PostHogEvent.MessageSent, {
 				chat_id: chatId,

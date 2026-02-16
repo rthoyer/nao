@@ -6,6 +6,7 @@ import { DefaultChatTransport } from 'ai';
 import { useCurrent } from './useCurrent';
 import { useMemoObject } from './useMemoObject';
 import { usePrevRef } from './use-prev';
+import type { AgentMode } from '@nao/shared/types/chat';
 import type { ScrollToBottom, ScrollToBottomOptions } from 'use-stick-to-bottom';
 import type { UseChatHelpers } from '@ai-sdk/react';
 import type { UIMessage } from '@nao/backend/chat';
@@ -23,6 +24,7 @@ export type ModelSelection = {
 } | null;
 
 const MODEL_STORAGE_KEY = 'nao-selected-model';
+const MODE_STORAGE_KEY = 'nao-agent-mode';
 
 function getStoredModel(): ModelSelection {
 	try {
@@ -48,6 +50,26 @@ function storeModel(model: ModelSelection) {
 	}
 }
 
+function getStoredMode(): AgentMode {
+	try {
+		const stored = localStorage.getItem(MODE_STORAGE_KEY);
+		if (stored === 'chat' || stored === 'deep-search') {
+			return stored;
+		}
+	} catch {
+		// Ignore parse errors
+	}
+	return 'chat';
+}
+
+function storeMode(mode: AgentMode) {
+	try {
+		localStorage.setItem(MODE_STORAGE_KEY, mode);
+	} catch {
+		// Ignore storage errors
+	}
+}
+
 export type AgentHelpers = {
 	messages: UIMessage[];
 	setMessages: UseChatHelpers<UIMessage>['setMessages'];
@@ -61,6 +83,8 @@ export type AgentHelpers = {
 	clearError: UseChatHelpers<UIMessage>['clearError'];
 	selectedModel: ModelSelection;
 	setSelectedModel: (model: ModelSelection) => void;
+	selectedMode: AgentMode;
+	setSelectedMode: (mode: AgentMode) => void;
 	setMentions: (mentions: MentionOption[]) => void;
 };
 
@@ -71,7 +95,9 @@ export const useAgent = (): AgentHelpers => {
 	const chatIdRef = useCurrent(chatId);
 	const scrollDownService = useScrollDownCallbackService();
 	const [selectedModel, setSelectedModelState] = useState<ModelSelection>(getStoredModel);
+	const [selectedMode, setSelectedModeState] = useState<AgentMode>(getStoredMode);
 	const selectedModelRef = useCurrent(selectedModel);
+	const selectedModeRef = useCurrent(selectedMode);
 	const mentionsRef = useRef<MentionOption[]>([]);
 	const setChat = useSetChat();
 	const setChatList = useSetChatList();
@@ -79,6 +105,11 @@ export const useAgent = (): AgentHelpers => {
 	const setSelectedModel = useCallback((model: ModelSelection) => {
 		setSelectedModelState(model);
 		storeModel(model);
+	}, []);
+
+	const setSelectedMode = useCallback((mode: AgentMode) => {
+		setSelectedModeState(mode);
+		storeMode(mode);
 	}, []);
 
 	const setMentions = useCallback((mentions: MentionOption[]) => {
@@ -104,6 +135,7 @@ export const useAgent = (): AgentHelpers => {
 							message: options.messages.at(-1),
 							model: selectedModelRef.current ?? undefined,
 							mentions: mentions.length > 0 ? mentions : undefined,
+							mode: selectedModeRef.current,
 						},
 					};
 				},
@@ -135,7 +167,7 @@ export const useAgent = (): AgentHelpers => {
 		});
 
 		return agentService.registerAgent(agentId, newAgent);
-	}, [chatId, navigate, setChat, setChatList, chatIdRef, selectedModelRef]);
+	}, [chatId, navigate, setChat, setChatList, chatIdRef, selectedModelRef, selectedModeRef]);
 
 	const agent = useChat({ chat: agentInstance });
 
@@ -177,6 +209,8 @@ export const useAgent = (): AgentHelpers => {
 		clearError: agent.clearError,
 		selectedModel,
 		setSelectedModel,
+		selectedMode,
+		setSelectedMode,
 		setMentions,
 	});
 };

@@ -1,3 +1,5 @@
+import { AgentMode } from '@nao/shared/types/chat';
+
 import { mcpService } from '../../services/mcp.service';
 import { AgentSettings } from '../../types/agent-settings';
 import displayChart from './display-chart';
@@ -22,10 +24,19 @@ export const tools = {
 
 export { isPythonAvailable };
 
-export const getTools = (agentSettings: AgentSettings | null) => {
-	const mcpTools = mcpService.getMcpTools();
-
+export const getTools = (agentSettings: AgentSettings | null, mode: AgentMode) => {
 	const { execute_python, ...baseTools } = tools;
+
+	if (mode === 'deep-search') {
+		return {
+			list: baseTools.list,
+			read: baseTools.read,
+			grep: baseTools.grep,
+			search: baseTools.search,
+		};
+	}
+
+	const mcpTools = mcpService.getMcpTools();
 
 	return {
 		...baseTools,

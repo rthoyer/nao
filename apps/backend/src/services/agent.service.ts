@@ -1,3 +1,4 @@
+import { AgentMode } from '@nao/shared/types/chat';
 import {
 	convertToModelMessages,
 	createUIMessageStream,
@@ -52,6 +53,7 @@ export class AgentService {
 		chat: AgentChat,
 		abortController: AbortController,
 		modelSelection?: ModelSelection,
+		mode?: AgentMode,
 	): Promise<AgentManager> {
 		this._disposeAgent(chat.id);
 		const resolvedModelSelection = await this._getResolvedModelSelection(chat.projectId, modelSelection);
@@ -64,6 +66,7 @@ export class AgentService {
 			() => this._agents.delete(chat.id),
 			abortController,
 			agentSettings,
+			mode ?? 'chat',
 		);
 		this._agents.set(chat.id, agent);
 		return agent;
@@ -146,10 +149,11 @@ class AgentManager {
 		private readonly _onDispose: () => void,
 		private readonly _abortController: AbortController,
 		agentSettings: AgentSettings | null,
+		private readonly _mode: AgentMode,
 	) {
 		this._agent = new ToolLoopAgent({
 			...modelConfig,
-			tools: getTools(agentSettings),
+			tools: getTools(agentSettings, _mode),
 			// On step 1+: cache user message (stable) + current step's last message (loop leaf)
 			prepareStep: ({ messages }) => {
 				return { messages: this._addCache(messages) };
@@ -254,7 +258,7 @@ class AgentManager {
 	private async _buildModelMessages(uiMessages: UIMessage[], mentions?: Mention[]): Promise<ModelMessage[]> {
 		uiMessages = this._prepareUIMessages(uiMessages, mentions);
 		const modelMessages = await convertToModelMessages(uiMessages);
-		const systemPrompt = renderToMarkdown(SystemPrompt());
+		const systemPrompt = renderToMarkdown(SystemPrompt({ mode: this._mode }));
 		const systemMessage: ModelMessage = { role: 'system', content: systemPrompt };
 		modelMessages.unshift(systemMessage);
 		return modelMessages;
