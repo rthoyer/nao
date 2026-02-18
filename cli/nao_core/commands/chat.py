@@ -117,8 +117,6 @@ def chat(port: Annotated[int, Parameter(name=["-p", "--port"])] = DEFAULT_SERVER
     """
     console.print("\n[bold cyan]💬 Starting nao chat...[/bold cyan]\n")
 
-    SERVER_PORT = port
-
     # Try to load nao config from current directory
     config = NaoConfig.try_load(exit_on_error=True)
     assert config is not None  # Help type checker after exit_on_error=True
@@ -168,7 +166,7 @@ def chat(port: Annotated[int, Parameter(name=["-p", "--port"])] = DEFAULT_SERVER
             console.print("[bold green]✓[/bold green] Set Slack environment variables from config")
 
         env["NAO_DEFAULT_PROJECT_PATH"] = str(Path.cwd())
-        env["BETTER_AUTH_URL"] = f"http://localhost:{SERVER_PORT}"
+        env["BETTER_AUTH_URL"] = f"http://localhost:{port}"
         env["MODE"] = MODE
         env["NAO_CORE_VERSION"] = __version__
 
@@ -193,7 +191,7 @@ def chat(port: Annotated[int, Parameter(name=["-p", "--port"])] = DEFAULT_SERVER
 
         # Start the chat server
         chat_process = subprocess.Popen(
-            [str(binary_path)],
+            [str(binary_path), "--port", str(port)],
             cwd=str(bin_dir),
             env=env,
             stdout=subprocess.PIPE,
@@ -204,15 +202,15 @@ def chat(port: Annotated[int, Parameter(name=["-p", "--port"])] = DEFAULT_SERVER
         console.print("[bold green]✓[/bold green] Chat server starting...")
 
         # Wait for the chat server to be ready
-        if wait_for_server(SERVER_PORT):
-            url = f"http://localhost:{SERVER_PORT}"
+        if wait_for_server(port):
+            url = f"http://localhost:{port}"
             console.print(f"[bold green]✓[/bold green] Chat server ready at {url}")
             console.print("\n[bold]Opening browser...[/bold]")
             webbrowser.open(url)
             console.print("\n[dim]Press Ctrl+C to stop the servers[/dim]\n")
         else:
             console.print("[bold yellow]⚠[/bold yellow] Chat server is taking longer than expected to start...")
-            console.print(f"[dim]Check http://localhost:{SERVER_PORT} manually[/dim]")
+            console.print(f"[dim]Check http://localhost:{port} manually[/dim]")
 
         # Stream chat server output to console
         if chat_process.stdout:
