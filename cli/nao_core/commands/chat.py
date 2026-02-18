@@ -1,3 +1,4 @@
+import argparse
 import os
 import secrets
 import subprocess
@@ -15,10 +16,35 @@ from nao_core.tracking import track_command
 
 console = Console()
 
-# Default port for the nao chat server
-SERVER_PORT = 5005
+# Default ports for the nao chat server
+DEFAULT_SERVER_PORT = 5005
 FASTAPI_PORT = 8005
 SECRET_FILE_NAME = ".nao-secret"
+
+
+def validate_port(port_str: str) -> int:
+    try:
+        port = int(port_str)
+    except ValueError:
+        raise argparse.ArgumentTypeError("Port must be an integer.")
+
+    if not 1024 <= port <= 65535:
+        raise argparse.ArgumentTypeError("Port must be between 1024 and 65535.")
+    return port
+
+
+parser = argparse.ArgumentParser()
+parser.add_argument(
+    "--port",
+    "-p",
+    type=validate_port,
+    default=DEFAULT_SERVER_PORT,
+    help=f"Port à écouter (par défaut : {DEFAULT_SERVER_PORT})",
+)
+
+args = parser.parse_args()
+
+SERVER_PORT = args.port
 
 
 def get_server_binary_path() -> Path:

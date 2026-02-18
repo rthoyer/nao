@@ -7,6 +7,11 @@ echo "=== nao Chat Server Entrypoint ==="
 NAO_CONTEXT_SOURCE="${NAO_CONTEXT_SOURCE:-local}"
 NAO_DEFAULT_PROJECT_PATH="${NAO_DEFAULT_PROJECT_PATH:-/app/context}"
 
+
+# If $SERVER_PORT is provided
+BETTER_AUTH_URL="http://localhost:${SERVER_PORT:-5005}"
+export BETTER_AUTH_URL
+
 echo "Context source: $NAO_CONTEXT_SOURCE"
 echo "Target path: $NAO_DEFAULT_PROJECT_PATH"
 

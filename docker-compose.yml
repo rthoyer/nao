@@ -23,7 +23,7 @@ services:
             context: .
             dockerfile: Dockerfile
         ports:
-            - '5005:5005'
+            - '${SERVER_PORT:-5005}:${SERVER_PORT:-5005}'
         environment:
             # =================================================================
             # Authentication & API Keys
