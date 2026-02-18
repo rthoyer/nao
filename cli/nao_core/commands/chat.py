@@ -1,4 +1,3 @@
-import argparse
 import os
 import secrets
 import subprocess
@@ -6,7 +5,9 @@ import sys
 import webbrowser
 from pathlib import Path
 from time import sleep
+from typing import Annotated
 
+from cyclopts import Parameter
 from rich.console import Console
 
 from nao_core import __version__
@@ -20,31 +21,6 @@ console = Console()
 DEFAULT_SERVER_PORT = 5005
 FASTAPI_PORT = 8005
 SECRET_FILE_NAME = ".nao-secret"
-
-
-def validate_port(port_str: str) -> int:
-    try:
-        port = int(port_str)
-    except ValueError:
-        raise argparse.ArgumentTypeError("Port must be an integer.")
-
-    if not 1024 <= port <= 65535:
-        raise argparse.ArgumentTypeError("Port must be between 1024 and 65535.")
-    return port
-
-
-parser = argparse.ArgumentParser()
-parser.add_argument(
-    "--port",
-    "-p",
-    type=validate_port,
-    default=DEFAULT_SERVER_PORT,
-    help=f"Port à écouter (par défaut : {DEFAULT_SERVER_PORT})",
-)
-
-args = parser.parse_args()
-
-SERVER_PORT = args.port
 
 
 def get_server_binary_path() -> Path:
@@ -129,12 +105,19 @@ def ensure_auth_secret(bin_dir: Path) -> str | None:
 
 
 @track_command("chat")
-def chat():
-    """Start the nao chat UI.
+def chat(port: Annotated[int, Parameter(name=["-p", "--port"])] = DEFAULT_SERVER_PORT):
+    f"""Start the nao chat UI.
 
     Launches the nao chat server and opens the web interface in your browser.
+
+    Parameters
+    ----------
+    port : int
+        Sets chat web app port. Defaults to {DEFAULT_SERVER_PORT}.
     """
     console.print("\n[bold cyan]💬 Starting nao chat...[/bold cyan]\n")
+
+    SERVER_PORT = port
 
     # Try to load nao config from current directory
     config = NaoConfig.try_load(exit_on_error=True)
