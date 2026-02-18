@@ -17,7 +17,7 @@ from nao_core.tracking import track_command
 
 console = Console()
 
-# Default ports for the nao chat server
+# Default port for the nao chat server
 DEFAULT_SERVER_PORT = 5005
 FASTAPI_PORT = 8005
 SECRET_FILE_NAME = ".nao-secret"
