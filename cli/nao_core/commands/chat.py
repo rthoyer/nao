@@ -113,9 +113,12 @@ def chat(port: Annotated[int, Parameter(name=["-p", "--port"])] = DEFAULT_SERVER
     Parameters
     ----------
     port : int
-        Sets chat web app port. Defaults to {DEFAULT_SERVER_PORT}.
+        Sets chat web app port. Defaults to {DEFAULT_SERVER_PORT}. Must be different from FASTAPI_PORT ({FASTAPI_PORT}).
     """
     console.print("\n[bold cyan]💬 Starting nao chat...[/bold cyan]\n")
+
+    if port == FASTAPI_PORT:
+        raise ValueError(f"Port must be different from FASTAPI_PORT ({FASTAPI_PORT})")
 
     # Try to load nao config from current directory
     config = NaoConfig.try_load(exit_on_error=True)
