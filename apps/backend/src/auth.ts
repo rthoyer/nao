@@ -58,6 +58,15 @@ function createAuthInstance(googleConfig: GoogleConfig) {
 	});
 }
 
+export let auth = null as Awaited<ReturnType<typeof createAuthInstance>> | null;
+
 export async function getAuth() {
-	return createAuthInstance(await orgQueries.getGoogleConfig());
+	if (!auth) {
+		auth = createAuthInstance(await orgQueries.getGoogleConfig());
+	}
+	return auth;
 }
+
+export const invalidAuth = () => {
+	auth = null;
+};

@@ -1,6 +1,7 @@
 import { TRPCError } from '@trpc/server';
 import { z } from 'zod/v4';
 
+import { invalidAuth } from '../auth';
 import { env } from '../env';
 import * as orgQueries from '../queries/organization.queries';
 import { adminProtectedProcedure, publicProcedure } from './trpc';
@@ -15,12 +16,10 @@ export const googleRoutes = {
 	}),
 	getSettings: adminProtectedProcedure.query(async () => {
 		const org = await orgQueries.getFirstOrganization();
-		const usingDbOverride = !!(org?.googleClientId && org?.googleClientSecret);
+		const config = await orgQueries.getGoogleConfig();
 		return {
-			clientId: org?.googleClientId || env.GOOGLE_CLIENT_ID || '',
-			clientSecret: org?.googleClientSecret || env.GOOGLE_CLIENT_SECRET || '',
-			authDomains: org?.googleAuthDomains || env.GOOGLE_AUTH_DOMAINS || '',
-			usingDbOverride,
+			...config,
+			usingDbOverride: !!(org?.googleClientId && org?.googleClientSecret),
 		};
 	}),
 	updateSettings: adminProtectedProcedure
@@ -41,6 +40,7 @@ export const googleRoutes = {
 				googleClientSecret: input.clientSecret || null,
 				googleAuthDomains: input.authDomains || null,
 			});
+			invalidAuth();
 			return { success: true };
 		}),
 };
