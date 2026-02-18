@@ -82,6 +82,7 @@ export const getGoogleConfig = async () => {
 		clientId: org?.googleClientId || env.GOOGLE_CLIENT_ID || '',
 		clientSecret: org?.googleClientSecret || env.GOOGLE_CLIENT_SECRET || '',
 		authDomains: org?.googleAuthDomains || env.GOOGLE_AUTH_DOMAINS || '',
+		usingDbOverride: !!(org?.googleClientId && org?.googleClientSecret),
 	};
 };
 

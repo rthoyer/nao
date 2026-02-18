@@ -1,5 +1,5 @@
 import { App } from '../app';
-import { getAuth } from '../auth';
+import { authPromise } from '../auth';
 import { convertHeaders } from '../utils/utils';
 
 export const authRoutes = async (app: App) => {
@@ -19,7 +19,7 @@ export const authRoutes = async (app: App) => {
 					body: request.body ? JSON.stringify(request.body) : undefined,
 				});
 				// Process authentication request
-				const auth = await getAuth();
+				const auth = await authPromise;
 				const response = await auth.handler(req);
 				// Forward response to client
 				reply.status(response.status);
