@@ -24,6 +24,7 @@ SECRET_FILE_NAME = ".nao-secret"
 
 
 def validate_port(port: int | None) -> int:
+    """Uses fallback values if port is not set and checks value for conflicts."""
     try:
         if port is None:
             fallback = os.getenv("SERVER_PORT", DEFAULT_SERVER_PORT)
