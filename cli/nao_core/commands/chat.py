@@ -123,15 +123,15 @@ def ensure_auth_secret(bin_dir: Path) -> str | None:
 
 @track_command("chat")
 def chat(port: Annotated[Optional[int], Parameter(name=["-p", "--port"])] = None):
-    f"""Start the nao chat UI.
+    """Start the nao chat UI.
 
     Launches the nao chat server and opens the web interface in your browser.
 
     Parameters
     ----------
     port : int
-        Sets chat web app port. Defaults to `SERVER_PORT` env var and {DEFAULT_SERVER_PORT} if not set.
-        Must be different from FASTAPI_PORT ({FASTAPI_PORT}).
+        Sets chat web app port. Defaults to `SERVER_PORT` env var and 5005 if not set.
+        Must be different from FASTAPI_PORT (8005).
     """
     console.print("\n[bold cyan]💬 Starting nao chat...[/bold cyan]\n")
 
