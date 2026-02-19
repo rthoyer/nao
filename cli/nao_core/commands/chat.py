@@ -26,9 +26,10 @@ SECRET_FILE_NAME = ".nao-secret"
 def validate_port(port: int | None) -> int:
     try:
         if port is None:
-            port = int(os.getenv("SERVER_PORT", DEFAULT_SERVER_PORT))
+            fallback = os.getenv("SERVER_PORT", DEFAULT_SERVER_PORT)
+            port = int(fallback)
     except (ValueError, TypeError) as e:
-        raise ValueError(f"Port must be a valid integer. Got: {port}") from e
+        raise ValueError(f"Port must be a valid integer. Got: {fallback}") from e
 
     if not (1024 <= port <= 65535):
         raise ValueError(f"Port must be between 1024 and 65535. Got: {port}")
