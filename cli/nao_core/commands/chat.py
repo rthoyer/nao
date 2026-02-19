@@ -5,7 +5,7 @@ import sys
 import webbrowser
 from pathlib import Path
 from time import sleep
-from typing import Annotated
+from typing import Annotated, Optional
 
 from cyclopts import Parameter
 from rich.console import Console
@@ -21,6 +21,22 @@ console = Console()
 DEFAULT_SERVER_PORT = 5005
 FASTAPI_PORT = 8005
 SECRET_FILE_NAME = ".nao-secret"
+
+
+def validate_port(port: int | None) -> int:
+    try:
+        if port is None:
+            port = int(os.getenv("SERVER_PORT", DEFAULT_SERVER_PORT))
+    except (ValueError, TypeError) as e:
+        raise ValueError(f"Port must be a valid integer. Got: {port}") from e
+
+    if 1024 <= port <= 65535:
+        raise ValueError(f"Port must be between 1024 and 65535. Got: {port}")
+
+    if port == FASTAPI_PORT:
+        raise ValueError(f"Port must be different from FASTAPI_PORT ({FASTAPI_PORT})")
+
+    return port
 
 
 def get_server_binary_path() -> Path:
@@ -105,7 +121,7 @@ def ensure_auth_secret(bin_dir: Path) -> str | None:
 
 
 @track_command("chat")
-def chat(port: Annotated[int, Parameter(name=["-p", "--port"])] = None):
+def chat(port: Annotated[Optional[int], Parameter(name=["-p", "--port"])] = None):
     f"""Start the nao chat UI.
 
     Launches the nao chat server and opens the web interface in your browser.
@@ -118,11 +134,7 @@ def chat(port: Annotated[int, Parameter(name=["-p", "--port"])] = None):
     """
     console.print("\n[bold cyan]💬 Starting nao chat...[/bold cyan]\n")
 
-    if port is None:
-        port = os.getenv("SERVER_PORT", DEFAULT_SERVER_PORT)
-
-    if port == FASTAPI_PORT:
-        raise ValueError(f"Port must be different from FASTAPI_PORT ({FASTAPI_PORT})")
+    port = validate_port(port)
 
     # Try to load nao config from current directory
     config = NaoConfig.try_load(exit_on_error=True)
