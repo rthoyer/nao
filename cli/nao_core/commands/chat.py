@@ -30,7 +30,7 @@ def validate_port(port: int | None) -> int:
     except (ValueError, TypeError) as e:
         raise ValueError(f"Port must be a valid integer. Got: {port}") from e
 
-    if 1024 <= port <= 65535:
+    if not (1024 <= port <= 65535):
         raise ValueError(f"Port must be between 1024 and 65535. Got: {port}")
 
     if port == FASTAPI_PORT:
