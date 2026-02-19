@@ -135,8 +135,6 @@ def chat(port: Annotated[Optional[int], Parameter(name=["-p", "--port"])] = None
     """
     console.print("\n[bold cyan]💬 Starting nao chat...[/bold cyan]\n")
 
-    port = validate_port(port)
-
     # Try to load nao config from current directory
     config = NaoConfig.try_load(exit_on_error=True)
     assert config is not None  # Help type checker after exit_on_error=True
@@ -167,6 +165,9 @@ def chat(port: Annotated[Optional[int], Parameter(name=["-p", "--port"])] = None
         # Set up environment - inherit from parent but ensure we're in the bin dir
         # so the server can find the public folder
         env = os.environ.copy()
+
+        # Get chat app port
+        port = validate_port(port)
 
         # Ensure auth secret is available
         auth_secret = ensure_auth_secret(bin_dir)
