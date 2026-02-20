@@ -25,4 +25,5 @@ jobs:
                   OLLAMA_URL: ${{ secrets.OLLAMA_URL }}
                   ISSUE_NUMBER: ${{ github.event.issue.number }}
                   ISSUE_TITLE: ${{ github.event.issue.title }}
+                  ISSUE_BODY: ${{ github.event.issue.body }}
               run: python scripts/analyse_issue.py
